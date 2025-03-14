@@ -1,6 +1,6 @@
 from urllib import request
 
-from flask import Flask, request, render_template_string, redirect
+from flask import Flask, request, render_template_string, redirect, render_template
 import sqlite3
 
 app = Flask(__name__)
@@ -27,34 +27,11 @@ def welcome():
         else:  # is users want to create a new set
             return redirect('/create')
 
-    return render_template_string("""
-        <h1>Welcome to the Quiz App!</h1>
-        <form method="POST">
-            <button type="submit" name='choice' value="select">Select a Quiz Set</button>
-            <br>
-            <button type="submit" name='choice' value="create">Create a New Quiz Set</button>
-        </form>
-        """)
+    return render_template("welcome.html")
 
 # page where users can add questions and answers to their quiz
 @app.route('/add/<quiz_id>', methods=['GET','POST'])
 def add_question(quiz_id):
-    add_html = """
-                    <h1>Add a quiz!</h1>
-                    <a href="/welcome">Home</a><br>
-                    <a href="/crud_options/{{quiz_id}}">Quiz Options</a><br>
-                    <form method="POST">
-                        <label for="ques">Question:</label><br>
-                        <input type="text" name="question" id="question" required>
-                        <br>
-                        <label for="ans">Answer:</label><br>
-                        <input type="text" name="answer" id="answer" required>
-                        <button type="submit" name='fill' value="select">Submit Question</button>
-                        </form>
-                        {% if alert %}
-                            <script>alert("{{ alert }}");</script>
-                        {% endif %}
-                """
     if request.method == 'POST':
         question = request.form.get('question').strip().lower()
         answer = request.form.get('answer').strip().lower()
@@ -67,27 +44,14 @@ def add_question(quiz_id):
                 connect.commit()
             except sqlite3.IntegrityError: # if question is not unique, raise error
                 connect.close()
-                return render_template_string(add_html,alert="Question is not unique",quiz_id=str(quiz_id))
+                return render_template('add.html',alert="Question is not unique",quiz_id=str(quiz_id))
             # alert user that q&a are added properly
-            return render_template_string(add_html,alert="Question and answer added successfully",quiz_id=str(quiz_id))
-    return render_template_string(add_html,quiz_id=str(quiz_id))
+            return render_template('add.html',alert="Question and answer added successfully",quiz_id=str(quiz_id))
+    return render_template('add.html',quiz_id=str(quiz_id))
 
 # users can update an existing question or answer
 @app.route('/change/<quiz_id>/<question_id>', methods=['GET','POST'])
 def change_question(quiz_id, question_id):
-    change_html = """
-                    <h1>Edit Question or answer!</h1>
-                    <a href="/welcome">Home</a><br>
-                    <a href="/crud_options/{{quiz_id}}">Quiz Options</a><br>
-                    <form method="POST">
-                        <input type="text" name="question" id="question">
-                        <input type="text" name="answer" id="answer">
-                        <button type="submit" name='fill' value="select">Update Question/Answer</button>
-                    </form>
-                    {% if alert %}
-                            <script>alert("{{ alert }}");</script>
-                    {% endif %}
-                    """
     if request.method == 'POST':
         question = request.form.get('question').strip()
         answer = request.form.get('answer').strip()
@@ -102,10 +66,10 @@ def change_question(quiz_id, question_id):
             connect.commit()
         connect.close()
         if not question and not answer: # if the user did not fill out either blanks, alert the user
-            return render_template_string(change_html,alert="Enter a Question or Answer",quiz_id=str(quiz_id))
+            return render_template('change.html',alert="Enter a Question or Answer",quiz_id=str(quiz_id))
         # question and answer are successfully changed
-        return render_template_string(change_html,alert='Question or Answer successfully updated',quiz_id=str(quiz_id))
-    return render_template_string(change_html,quiz_id=str(quiz_id))
+        return render_template('change.html',alert='Question or Answer successfully updated',quiz_id=str(quiz_id))
+    return render_template('change.html',quiz_id=str(quiz_id))
 
 # the selected question and answer are deleted
 @app.route('/delete/<quiz_id>/<question_id>', methods=['GET','POST'])
@@ -132,41 +96,12 @@ def view_questions(quiz_id):
     cursor.execute("SELECT * FROM questions WHERE quiz_id = ?", (int(quiz_id),))
     all_questions = cursor.fetchall() # fetches all the questions in quiz in a tuple
     connect.close()
-    view_html = ("<h1>All Questions!</h1>"
-                 '<a href="/welcome">Home</a><br>'
-                 '<a href="/crud_options/{{quiz_id}}">Quiz Options</a><br><br>'
-             "{% if all_questions %}"
-                 "{% for question in all_questions %}"
-                 "Question: {{ question[1] }}<br>"
-                 "Answer: {{ question[3] }}"
-                 '<form method="POST" action="/delete/{{quiz_id}}/{{question[2]}}"> '
-                        '<button type="submit">Delete</button>'
-                 '<br>'
-                 '<a href="/change/{{quiz_id}}/{{question[2]}}"'
-                        '<button type="submit">Update Question Or Answer</button>'
-                '</a><br><br>'
-                "{% endfor %}"
-             "{% else %}"
-                "No Questions added"
-             "{% endif %}")
-
-    return render_template_string(view_html,all_questions=all_questions,quiz_id=str(quiz_id))
+    return render_template('view.html',all_questions=all_questions,quiz_id=str(quiz_id))
 
 # users may select an existing quiz to work on
 @app.route('/select',methods=['GET', 'POST'])
 def select_quiz():
     # require ensures the box is filled in order to submit
-    select_html="""
-                <h1>Enter Quiz Name!</h1>
-                <a href="/welcome">Home</a><br>
-                <form method="POST">
-                    <input type="text" name="quiz_name" id="quiz_name" required>
-                    <button type="submit" name='fill' value="select">Submit Name</button>
-                </form>
-                {% if alert %}
-                        <script>alert("{{ alert }}");</script>
-                {% endif %}
-                """
     if request.method == 'POST':
         quiz_name = request.form.get('quiz_name').strip().lower()
         connect = sqlite3.connect('database.db')
@@ -178,24 +113,14 @@ def select_quiz():
             quiz_id = found[0] # returns the quiz set selected
             return redirect(f'/crud_options/{quiz_id}') # allows user to moidfy quiz
         else:
-            return render_template_string(select_html, alert="enter an existing quiz") # if the quiz does not exist, alert user
-    return render_template_string(select_html)
+            #return render_template_string(select_html, alert="enter an existing quiz") # if the quiz does not exist, alert user
+            return render_template('select.html', alert="enter an existing quiz")
+    return render_template("select.html")
 
 # users can create a new quiz set
 @app.route('/create', methods=['GET', 'POST'])
 def create_quiz():
     # required ensures that users fill the box in order to submit
-    create_html="""
-            <h1>Enter Quiz Name!</h1>
-            <a href="/welcome">Home</a><br>
-            <form method="POST">
-                <input type="text" name="quiz_name" id="quiz_name" required>
-                <button type="submit" name='fill' value="create">Submit Name</button>
-            </form>
-            {% if alert %}
-                        <script>alert("{{ alert }}");</script>
-                {% endif %}
-            """
     if request.method == 'POST':
         quiz_name = request.form.get('quiz_name').strip().lower()
         if quiz_name:
@@ -204,14 +129,14 @@ def create_quiz():
             cursor.execute("SELECT * FROM quiz WHERE quiz_name = ?", (quiz_name,)) # check if name exists
             found = cursor.fetchone() # fetches results
             if found: # if quiz name exists, notify the user
-                return render_template_string(create_html,alert="Quiz name already exists")
+                return render_template('create.html',alert="Quiz name already exists")
             else: # if quiz name is unused, add quiz to list
                 cursor.execute("INSERT INTO quiz (quiz_name) VALUES (?)", (quiz_name,))
                 connect.commit()
                 connect.close()
                 quiz_id = cursor.lastrowid # determines if quiz exists
                 return redirect(f'/crud_options/{quiz_id}') # allow users to modify quiz
-    return render_template_string(create_html)
+    return render_template('create.html')
 
 @app.route('/crud_options/<quiz_id>',methods=['GET', 'POST'])
 def crud_options(quiz_id):
@@ -221,15 +146,7 @@ def crud_options(quiz_id):
             return redirect(f'/add/{quiz_id}')
         elif choice == 'view': # if users want to view all the questions to modify
             return redirect(f'/view_questions/{quiz_id}')
-    return render_template_string("""
-            <h1>Quiz options</h1>
-            <a href="/welcome">Home</a><br>
-            <form method="POST">
-                <button type="submit" name='choice' value="add">Add Q/At</button>
-                <br>
-                <button type="submit" name='choice' value="view">View All Questions Q/At</button>
-            </form>
-            """)
+    return render_template('crud.html',quiz_id=str(quiz_id))
 
 if __name__ == '__main__':
     app.run()

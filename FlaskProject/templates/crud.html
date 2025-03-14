@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            background-color: #e8f4ff;
+            text-align: center;
+        }
+        h1{
+            font-family: "Roboto Thin", sans-serif;
+        }
+        a,button{ <!-- button taken from getcssscan -->
+            background-color: #FAFBFC;
+            border: 1px solid rgba(27, 31, 35, 0.15);
+            border-radius: 6px;
+            box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+            box-sizing: border-box;
+            color: #24292E;
+            cursor: pointer;
+            display: inline;
+            font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            list-style: none;
+            padding: 6px 16px;
+            position: relative;
+            transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+            touch-action: manipulation;
+            vertical-align: middle;
+            white-space: nowrap;
+            word-wrap: break-word;
+            text-decoration: none;
+        }
+    </style>
+    <title>Add or View</title>
+</head>
+<body>
+    <h1>Quiz options</h1>
+    <a href="/welcome">🏠 Home</a><br><br><br><br>
+    <form method="POST">
+        <button type="submit" name='choice' value="add">Add Q/At</button>
+        <button type="submit" name='choice' value="view">View All Questions Q/At</button>
+    </form>
+</body>
+</html>

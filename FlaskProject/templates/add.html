@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            background-color: #e8f4ff;
+            text-align: center;
+        }
+        h1{
+            font-family: "Roboto Thin", sans-serif;
+        }
+        input{
+            border: none;
+            border-bottom: 1px solid #515151;
+            width: 350px;
+            background: transparent;
+        }
+        input:focus{
+             outline: none;
+        }
+        a,button{ <!-- button taken from getcssscan -->
+            background-color: #FAFBFC;
+            border: 1px solid rgba(27, 31, 35, 0.15);
+            border-radius: 6px;
+            box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+            box-sizing: border-box;
+            color: #24292E;
+            cursor: pointer;
+            display: inline;
+            font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            list-style: none;
+            padding: 6px 16px;
+            position: relative;
+            transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+            touch-action: manipulation;
+            vertical-align: middle;
+            white-space: nowrap;
+            word-wrap: break-word;
+            text-decoration: none;
+        }
+    </style>
+    <title>Add Q/A</title>
+</head>
+<body>
+    <h1>Add a quiz!</h1>
+    <a href="/welcome">🏠 Home</a>
+    <a href="/crud_options/{{quiz_id}}">🗒️Quiz Options</a><br><br>
+    <form method="POST">
+        <label for="ques">Question:</label>
+        <input type="text" name="question" id="question" required>  <!--Ensures question is filled -->
+        <br> <br>
+        <label for="ans">Answer:</label>
+        <input type="text" name="answer" id="answer" required><br><br> <!--Ensures answer is filled -->
+        <button type="submit" name='fill' value="select">Submit Question</button>
+        </form>
+        {% if alert %}
+            <script>alert("{{ alert }}");</script>
+        {% endif %}
+</body>
+</html>
